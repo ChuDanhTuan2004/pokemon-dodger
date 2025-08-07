@@ -23,17 +23,19 @@ class ScreenManager:
         self.draw_text(screen, "Nhấn ENTER để bắt đầu", 'normal', BLACK, WIDTH // 2, HEIGHT // 2 + 200)
     
     def draw_player_selection(self, screen):
-        self.draw_text(screen, "Chọn nhân vật", 'title', BLACK, WIDTH // 2, 100)
-        self.draw_text(screen, "Sử dụng mũi tên để chọn, ENTER để xác nhận", 'small', BLUE, WIDTH // 2, 150)
+        from .config import PLAYER_ABILITIES
+        
+        self.draw_text(screen, "Chọn nhân vật", 'title', BLACK, WIDTH // 2, 80)
+        self.draw_text(screen, "Sử dụng mũi tên để chọn, ENTER để xác nhận", 'small', BLUE, WIDTH // 2, 120)
         
         player_positions = {
-            "blue": (WIDTH // 4, HEIGHT // 2 + 50),
-            "red": (WIDTH // 2, HEIGHT // 2 + 50),
-            "gray": (WIDTH * 3 // 4, HEIGHT // 2 + 50)
+            "blue": (WIDTH // 4, HEIGHT // 2 - 50),
+            "red": (WIDTH // 2, HEIGHT // 2 - 50),
+            "gray": (WIDTH * 3 // 4, HEIGHT // 2 - 50)
         }
         
         for i, (player_type, pos) in enumerate(player_positions.items()):
-            button = pygame.Rect(pos[0] - 60, pos[1] - 60, 120, 120)
+            button = pygame.Rect(pos[0] - 80, pos[1] - 60, 160, 120)
             
             if i == self.player_selection_index:
                 pygame.draw.rect(screen, GREEN, button, 4)
@@ -50,6 +52,13 @@ class ScreenManager:
                 pygame.draw.rect(screen, color, temp_rect)
             
             self.draw_text(screen, player_type.capitalize(), 'small', BLACK, pos[0], pos[1] + 70)
+        
+        selected_type = PLAYER_TYPES[self.player_selection_index]
+        ability = PLAYER_ABILITIES[selected_type]
+        
+        self.draw_text(screen, f"Chiêu đặc biệt: {ability['name']}", 'normal', RED, WIDTH // 2, HEIGHT // 2 + 100)
+        self.draw_text(screen, ability['description'], 'small', BLACK, WIDTH // 2, HEIGHT // 2 + 140)
+        self.draw_text(screen, f"Nhấn {ability['key']} để sử dụng - Hồi chiêu: {ability['cooldown']}s", 'small', BLUE, WIDTH // 2, HEIGHT // 2 + 170)
     
     def draw_difficulty_selection(self, screen):
         self.draw_text(screen, "Chọn cấp độ", 'title', BLACK, WIDTH // 2, 100)
@@ -92,7 +101,7 @@ class ScreenManager:
         self.draw_text(screen, f"Điểm: {score}", 'normal', BLACK, WIDTH // 2, HEIGHT // 2)
         self.draw_text(screen, "Nhấn ENTER để tiếp tục", 'normal', BLACK, WIDTH // 2, HEIGHT * 2 // 3)
     
-    def draw_hud(self, screen, score, hp):
+    def draw_hud(self, screen, score, hp, player=None):
         self.draw_text(screen, f"Điểm: {score}", 'normal', BLACK, WIDTH // 2, 30)
         
         heart_start_x = 20
@@ -103,6 +112,23 @@ class ScreenManager:
                 screen.blit(self.assets.images['heart'], (heart_start_x + i * 35, heart_y))
             else:
                 pygame.draw.circle(screen, RED, (heart_start_x + i * 35 + 15, heart_y + 15), 12)
+        
+        if player:
+            from .config import PLAYER_ABILITIES
+            ability = PLAYER_ABILITIES[player.player_type]
+            
+            ability_x = WIDTH - 250
+            ability_y = 30
+            
+            self.draw_text(screen, f"Chiêu: {ability['name']}", 'small', BLACK, ability_x, ability_y)
+            
+            if player.ability_active:
+                remaining = max(0, player.ability_duration)
+                self.draw_text(screen, f"ĐANG HOẠT ĐỘNG ({remaining:.1f}s)", 'small', GREEN, ability_x, ability_y + 30)
+            elif player.ability_cooldown > 0:
+                self.draw_text(screen, f"Cooldown: {player.ability_cooldown:.1f}s", 'small', RED, ability_x, ability_y + 30)
+            else:
+                self.draw_text(screen, "Nhấn SPACE để sử dụng", 'small', BLUE, ability_x, ability_y + 30)
     
     def handle_player_selection_input(self, key):
         if key == pygame.K_LEFT:

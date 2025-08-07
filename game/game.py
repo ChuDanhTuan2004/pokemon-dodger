@@ -48,7 +48,8 @@ class Game:
         self.player = Player(
             WIDTH // 2 - PLAYER_SIZE // 2,
             HEIGHT - GROUND_HEIGHT - PLAYER_SIZE,
-            self.assets.player_sprites[self.selected_player]
+            self.assets.player_sprites[self.selected_player],
+            self.selected_player
         )
         
         self.enemy_manager.create_enemies(
@@ -109,10 +110,22 @@ class Game:
             self.player.move_right(WIDTH)
         else:
             self.player.stop()
+        
+        if keys[pygame.K_SPACE]:
+            if self.player.use_ability():
+                self.play_sound_effect('click')
     
     def update_game(self):
         if self.game_state != "playing":
             return
+        
+        dt = self.clock.get_time() / 1000.0
+        self.player.update_abilities(dt)
+        
+        if self.player.player_type == "gray" and self.player.ability_active:
+            self.enemy_manager.set_all_speed_modifier(0.3)
+        else:
+            self.enemy_manager.set_all_speed_modifier(1.0)
         
         score_gained = self.enemy_manager.update_enemies(self.screen_manager.difficulty_level)
         self.score += score_gained
@@ -148,7 +161,7 @@ class Game:
             self.ground.draw(self.screen)
             
             hp = self.player.hp if self.player else 0
-            self.screen_manager.draw_hud(self.screen, self.score, hp)
+            self.screen_manager.draw_hud(self.screen, self.score, hp, self.player)
         
         elif self.game_state == "game_over":
             self.play_background_music('menu')

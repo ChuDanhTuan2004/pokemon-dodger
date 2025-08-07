@@ -26,6 +26,29 @@ ANIMATION_SPEED_MAX = 0.2
 PLAYER_TYPES = ["blue", "red", "gray"]
 ENEMY_TYPES = ["blue", "dark", "purple"]
 
+PLAYER_ABILITIES = {
+    "blue": {
+        "name": "Lightning Dash",
+        "description": "Tức thời di chuyển nhanh một khoảng cách xa",
+        "cooldown": 3.0,
+        "key": "SPACE"
+    },
+    "red": {
+        "name": "Phoenix Shield", 
+        "description": "Bất tử tạm thời trong 2 giây",
+        "cooldown": 8.0,
+        "duration": 2.0,
+        "key": "SPACE"
+    },
+    "gray": {
+        "name": "Time Warp",
+        "description": "Làm chậm tất cả kẻ thù trong 3 giây", 
+        "cooldown": 10.0,
+        "duration": 3.0,
+        "key": "SPACE"
+    }
+}
+
 GROUND_HEIGHT = 80
 GROUND_COLOR = (139, 69, 19)
 
